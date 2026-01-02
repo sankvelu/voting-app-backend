@@ -1,10 +1,8 @@
-import express from "express";
+import { Router } from "express";
+import { createPoll } from "../controllers/poll.controller.js";
+import { voteInPoll } from "../controllers/vote.controller.js";
 
-const pollRouter = express.Router();
+export const pollRouter = Router();
 
-// minimal placeholder route
-pollRouter.get("/", (req, res) => {
-  res.json({ message: "poll root" });
-});
-
-export { pollRouter };
+pollRouter.post("/", createPoll);
+pollRouter.post("/:pollId/vote", voteInPoll);
