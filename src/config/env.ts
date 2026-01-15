@@ -6,4 +6,6 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET,
   awsRegion: process.env.AWS_REGION || "eu-north-1",
   dynamoTable: process.env.DYNAMODB_TABLE || "voting-app-v1.0",
+  createPollLambdaArn: process.env.CREATE_POLL_LAMBDA_ARN!,
+  awardPointsLambdaName: process.env.AWARD_POINTS_LAMBDA_NAME!
 };

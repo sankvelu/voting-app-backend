@@ -8,8 +8,13 @@ import {
 import { randomUUID } from "crypto";
 import { db } from "../config/dynamo.js";
 import { config } from "../config/env.js";
+import { schedulePollCreation } from "./eventbridge.service.js";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 
 const TABLE = config.dynamoTable;
+const lambdaClient = new LambdaClient({
+  region: config.awsRegion,
+});
 
 export async function createMatchService({
   teams,
@@ -36,6 +41,21 @@ export async function createMatchService({
       Item: item,
     })
   );
+
+  const matchStart = new Date(startTime);
+  const pollTime = new Date(matchStart.getTime() - 30 * 60 * 1000);
+
+  if (pollTime.getTime() <= Date.now()) {
+    throw new Error(
+      `Poll time ${pollTime.toISOString()} must be in the future`
+    );
+  }
+
+  await schedulePollCreation({
+    matchId,
+    pollTime,
+    lambdaArn: config.createPollLambdaArn,
+  });
 
   return {
     matchId,
@@ -79,6 +99,18 @@ export async function setMatchWinnerService(matchId: string, winner: string) {
       ExpressionAttributeValues: {
         ":winner": winner,
       },
+    })
+  );
+
+  await lambdaClient.send(
+    new InvokeCommand({
+      FunctionName: config.awardPointsLambdaName,
+      InvocationType: "Event", // async
+      Payload: Buffer.from(
+        JSON.stringify({
+          matchId,
+        })
+      ),
     })
   );
 

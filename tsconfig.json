@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
 
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
 
     "strict": true,
@@ -19,5 +19,5 @@
     "noEmit": false,
     "verbatimModuleSyntax": true
   },
-  "include": ["src"]
+  "include": ["src", "index.ts","indexAwardPoints.ts"]
 }
